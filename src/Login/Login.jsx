@@ -1,154 +1,128 @@
-import { useContext, useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { FaGithub, FaGoogle, FaEye, FaEyeSlash } from 'react-icons/fa';
 
-
-
-import { GithubAuthProvider, GoogleAuthProvider, getAuth, signInWithPopup } from "firebase/auth";
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import 'aos/dist/aos.css';
-import AOS from 'aos';
+import { useForm } from "react-hook-form";
+import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { AuthContext } from "../Provider/AuthProvider";
+import SocialLogin from "../Page/Hook/SocialLogin";
 
 const Login = () => {
+    const { register, handleSubmit, formState: { errors } } = useForm();
     const { signIn } = useContext(AuthContext);
-    const location = useLocation();
-    const [registerError, setRegisterError] = useState('');
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false); // State for password visibility toggle
+    const [loading, setLoading] = useState(false); // State for loading indicator
 
-    const [showPassword, setShowPassword] = useState(false);
+    const onSubmit = (data) => {
+        const { email, password } = data;
 
-    const [firebaseUser, setFirebaseUser] = useState(null);
-    const auth = getAuth();
-    const googleProvider = new GoogleAuthProvider();
-    const githubProvider = new GithubAuthProvider();
+        setLoading(true); // Set loading to true when login starts
 
-    const handleGoogleSignIn = () => {
-        signInWithPopup(auth, googleProvider)
+        signIn(email, password)
             .then(result => {
-                const loggedUser = result.user;
-                console.log(loggedUser);
-                setFirebaseUser(loggedUser);
-                navigate(location?.state ? location.state : '/');
-                toast.success('Successfully logged in with Google!');
+                const user = result.user;
+                console.log(user);
+
+                Swal.fire({
+                    title: "User Login Successfully",
+                    icon: "success",
+                    showClass: {
+                        popup: "animate__animated animate__fadeInUp animate__faster"
+                    },
+                    hideClass: {
+                        popup: "animate__animated animate__fadeOutDown animate__faster"
+                    }
+                });
+
+                navigate('/');
             })
             .catch(error => {
-                console.log('error', error.message);
+                console.error("Login error:", error);
+
+                Swal.fire({
+                    title: "Login Failed",
+                    text: "Wrong password. Please try again.",
+                    icon: "error",
+                });
+            })
+            .finally(() => {
+                setLoading(false); // Set loading to false after login is completed
             });
-    }
-
-
-
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        const form = new FormData(e.currentTarget);
-        const email = form.get('email');
-        const password = form.get('password');
-
-        setRegisterError('');
-
-        // Email validation
-        if (!email || !password) {
-            toast.error('Please enter both email and password!');
-            return;
-        }
-
-        try {
-            // Perform Firebase authentication
-            const result = await signIn(email, password);
-            console.log(result.user);
-            navigate(location?.state ? location.state : '/');
-            toast.success('Successfully logged in!');
-        } catch (error) {
-            console.error(error);
-            toast.error('Login failed. Please check your email and password.');
-        }
     };
-
-    // Function to toggle password visibility
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    useEffect(() => {
-
-        AOS.init({
-            duration: 1000,
-            once: true,
-            easing: 'ease-out',
-        });
-    }, []);
 
     return (
-        <div>
+        <div className="flex items-center justify-center px-4 sm:px-4 md:px-4 mt-4 mb-4">
+            <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-2xl">
+                <h2 className="text-3xl font-semibold text-center text-gray-700 mb-6">Login</h2>
 
-            <hr />
-            <ToastContainer position="top-center" autoClose={3000} />
-            <div data-aos="fade-up" className="grid  py-11 grid-cols-1 lg:grid-cols-4">
-                <div>
-
-                </div>
-                <div className="col-span-2">
-                    <div className="">
-                        <h1 className="text-2xl  font-bold text-center ">Please Login</h1>
-                        <form onSubmit={handleLogin} className="w-80 md:w-96 lg:w-3/4 mx-auto">
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text font-bold">Email address</span>
-                                </label>
-                                <input type="email" name="email" placeholder="Enter Email" className="input input-bordered" required />
-                            </div>
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text   font-bold">Password</span>
-                                </label>
-                                <div className=" relative flex   ">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        name="password"
-                                        placeholder="password"
-                                        className="input w-full input-bordered"
-                                        required
-
-                                    />
-                                    <span className=" text-2xl mt-3 -ml-7">
-                                        {showPassword ? (
-                                            <FaEyeSlash onClick={togglePasswordVisibility} className="text-gray-400  cursor-pointer" />
-                                        ) : (
-                                            <FaEye onClick={togglePasswordVisibility} className="text-gray-400    cursor-pointer" />
-                                        )}
-                                    </span>
-                                </div>
-                                <label className="label">
-                                    <a href="#" className="label-text-alt  font-bold link link-hover">Forgot password?</a>
-                                </label>
-                            </div>
-                            <div className="form-control mt-6">
-                                <button className="btn bg-amber-500 hover:bg-amber-200">Login</button>
-                            </div>
-                        </form>
-                        {firebaseUser && (
-                            <div>
-                                {/* Display the user's profile image */}
-                            </div>
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+                    {/* Email Field */}
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-600">Email</label>
+                        <input
+                            id="email"
+                            type="email"
+                            {...register("email", {
+                                required: "Email is required",
+                                pattern: {
+                                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                    message: "Enter a valid email address"
+                                }
+                            })}
+                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                            placeholder="you@example.com"
+                        />
+                        {errors.email && (
+                            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                         )}
-                        <p className="text-center font-bold mt-5">New to  Job Finder. Please<Link className="text-blue-600 underline font-bold" to={'/register'}> Register</Link></p>
                     </div>
-                </div>
-                <div>
-                    <div className='p-4 space-y-3 mb-6 '>
-                        <h2 className="text-2xl text-orange-500 font-bold">Login With</h2>
-                        <button onClick={handleGoogleSignIn} className="btn btn-outline   w-full">
-                            <FaGoogle></FaGoogle>
-                            Login with Google
-                        </button>
 
+                    {/* Password Field */}
+                    <div className="relative">
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-600">Password</label>
+                        <input
+                            id="password"
+                            type={showPassword ? "text" : "password"} // Toggle between text and password
+                            {...register("password", { required: "Password is required" })}
+                            className="w-full p-3 mt-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                            placeholder="••••••••"
+                        />
+                        {/* Eye Icon for toggling password visibility */}
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? <AiOutlineEyeInvisible size={20} /> : <AiOutlineEye size={20} />}
+                        </button>
+                        {errors.password && (
+                            <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
+                        )}
                     </div>
+
+                    {/* Submit Button with loading indicator */}
+                    <button
+                        type="submit"
+                        disabled={loading} // Disable button when loading
+                        className={`w-full p-3 rounded-lg font-semibold transition duration-300 ease-in-out ${loading ? 'bg-gray-400' : 'bg-indigo-600 hover:bg-indigo-700'} focus:outline-none`}
+                    >
+                        {loading ? "Loading..." : "Login"}
+                    </button>
+                </form>
+
+                {/* Social Login Button */}
+                <div className="mt-6 text-center">
+                    <SocialLogin />
+                </div>
+
+                <div className="text-center">
+                    <p className="text-sm text-gray-600">
+                        Don't have an account? <Link to="/register" className="text-indigo-600 hover:text-indigo-700">Sign up</Link>
+                    </p>
                 </div>
             </div>
-            <hr className="mt-20" />
-
         </div>
     );
 };
