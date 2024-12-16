@@ -1,105 +1,127 @@
-import { createContext, useEffect, useState } from "react";
-import { createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+import { GoogleAuthProvider, createUserWithEmailAndPassword, getAuth, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
+import UseAxiosPublic from "../Page/Hook/UseAxiosPublic";
+import app from "../Firebase/firebase.config";
+import { sendEmailVerification } from "firebase/auth";
 
 export const AuthContext = createContext(null);
 const auth = getAuth(app);
-import PropTypes from 'prop-types';
-import app from "../Firebase/firebase.config";
-import axios from "axios";
 
 const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const googleProvider = new GoogleAuthProvider();
+    const axiosPublic = UseAxiosPublic();
 
-    const [user, setUser] = useState(null)
-    const [loading, setLoading] = useState(true)
-
-    const createUser = (email, password) => {
+    // Create user function with email verification
+    const createUser = async (email, password, name, photo) => {
         setLoading(true);
-        return createUserWithEmailAndPassword(auth, email, password)
-    }
+        try {
+            // Register user with email and password
+            const result = await createUserWithEmailAndPassword(auth, email, password);
+            const currentUser = result.user;
+            
+            // Send email verification to the user
+            await sendEmailVerification(currentUser);
+            
+            // Update the user profile with their name and photo
+            await updateProfile(currentUser, {
+                displayName: name,
+                photoURL: photo,
+            });
 
-    const signIn = (email, password) => {
+            // Save user to the database
+            const userInfo = { name, email, photoURL: photo, isVerified: false };  // Default to unverified
+            await axiosPublic.post('/users', userInfo);
+
+            return result;
+        } catch (error) {
+            console.error("Error creating user:", error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Update user profile (name and photo)
+    const updateUserProfile = (name, photo) => {
+        return updateProfile(auth.currentUser, {
+            displayName: name,
+            photoURL: photo,
+        });
+    };
+
+    // Sign-in function with email verification check
+    const signIn = async (email, password) => {
         setLoading(true);
-        return signInWithEmailAndPassword(auth, email, password)
-    }
+        try {
+            const result = await signInWithEmailAndPassword(auth, email, password);
+            const currentUser = result.user;
 
+            if (!currentUser.emailVerified) {
+                throw new Error("Please verify your email before logging in.");
+            }
+
+            return result;
+        } catch (error) {
+            console.error("Error signing in:", error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Log-out function
     const logOut = () => {
         setLoading(true);
         return signOut(auth);
-    }
+    };
 
-    // useEffect(() => {
-    //     const unsubscribe = onAuthStateChanged(auth, currentUser => {
-    //         setUser(currentUser);
-    //         setLoading(false);
-    //         const loggedUser = { email: currentUser.email }
-    //         if (currentUser) {
-    //             axios.post('https://job-finder-server-lake.vercel.app/jwt', loggedUser, {
-    //                 withCredentials: true
-    //             })
-    //                 .then(res => {
-    //                     console.log(res.data);
-    //                 })
-    //         }
-    //     });
-    //     return () => {
-    //         return unsubscribe();
-    //     }
-    // }, [])
+    // Google Sign-In function
+    const googleSignIn = () => {
+        setLoading(true);
+        return signInWithPopup(auth, googleProvider);
+    };
 
-    // useEffect(() => {
-    //     const unsubscribe = onAuthStateChanged(auth, currentUser => {
-    //         const userEmail = currentUser?.email || user?.email;
-    //         const loggedUser = { email: userEmail };
-    //         setUser(currentUser);
-    //         console.log('current user', currentUser);
-    //         setLoading(false);
-    //         // if user exists then issue a token
-    //         if (currentUser) {
-    //             axios.post('https://job-finder-server-lake.vercel.app/jwt', loggedUser, { withCredentials: true })
-    //                 .then(res => {
-    //                     console.log('token response', res.data);
-    //                 })
-    //         }
-    //         else {
-    //             axios.post('https://job-finder-server-lake.vercel.app/logout', loggedUser, {
-    //                 withCredentials: true
-    //             })
-    //                 .then(res => {
-    //                     console.log(res.data);
-    //                 })
-    //         }
-    //     });
-    //     return () => {
-    //         return unsubscribe();
-    //     }
-    // }, [])
+    // Monitor the authentication state
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            if (currentUser && currentUser.emailVerified) {
+                setUser(currentUser);
 
+                // Send a request to your backend to fetch JWT token for the authenticated user
+                axiosPublic.post('jwt/', { email: currentUser.email })
+                    .then(res => {
+                        if (res.data.token) {
+                            localStorage.setItem('access-token', res.data.token);
+                        }
+                    });
+            } else {
+                setUser(null);
+                localStorage.removeItem('access-token');
+            }
+            setLoading(false);
+        });
 
+        return () => unsubscribe();
+    }, [axiosPublic]);
 
+    // Provide authentication context to the rest of the app
     const authInfo = {
         user,
         loading,
         createUser,
         signIn,
+        googleSignIn,
         logOut,
-        setLoading
-    }
-
+        updateUserProfile,
+    };
 
     return (
         <AuthContext.Provider value={authInfo}>
-            {
-                children
-            }
-
+            {children}
         </AuthContext.Provider>
     );
 };
-
-AuthProvider.propTypes = {
-
-    children: PropTypes.object.isRequired,
-
-}
 
 export default AuthProvider;
