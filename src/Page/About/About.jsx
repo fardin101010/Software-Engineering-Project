@@ -8,7 +8,7 @@ const About = () => {
             <div className="space-y-2  lg:w-1/2 mt-10">
                 <h1 className="text-xl text-red-400">WHAT WE ARE DOING</h1>
                 <h1 className="text-2xl lg:text-4xl font-bold text-blue-400">24k Talented people are getting Jobs</h1>
-                <h1 className="text-justify">At Job Flender, we are more than just a job placement agency; we are your trusted partner in the journey towards meaningful employment. We understand the aspirations and talents of job seekers and work diligently to connect them with opportunities that align with their career goals and aspirations.</h1>
+                <h1 className="text-justify">At Chakri Bakri, we are more than just a job placement agency; we are your trusted partner in the journey towards meaningful employment. We understand the aspirations and talents of job seekers and work diligently to connect them with opportunities that align with their career goals and aspirations.</h1>
                 <h1>We believe that every individual has unique skills and potential waiting to be discovered. Our mission is to empower job seekers by providing them with the tools, resources, and support they need to excel in their careers.</h1>
 
                 <Link to={'/add'}>
