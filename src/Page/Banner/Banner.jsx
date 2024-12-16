@@ -12,7 +12,7 @@ const Banner = () => {
                 <div className="absolute  flex items-center   h-full  lg:left-0   lg:top-0 bg-gradient-to-r from-[#151515] to-[rgba(21, 21, 21, 0.00)]">
                     <div className='text-white space-y-7 px-3 lg:px-0 lg:pl-12 lg:w-1/2'>
                         <h1 className="lg:text-5xl font-bold">Find the most exciting startup jobs</h1>
-                        <p>Job Finder is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
+                        <p>Chakri Bakri is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
 
 
                         <div className='flex  gap-3'>
@@ -36,7 +36,7 @@ const Banner = () => {
                 <div className="absolute  flex items-center   h-full  lg:left-0   lg:top-0 bg-gradient-to-r from-[#151515] to-[rgba(21, 21, 21, 0.00)]">
                     <div className='text-white space-y-7 px-3 lg:px-0 lg:pl-12 lg:w-1/2'>
                         <h1 className="lg:text-5xl font-bold">Find the most exciting startup jobs</h1>
-                        <p>Job Finder is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
+                        <p>Chakri Bakri is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
 
 
                         <div className='flex  gap-3'>
@@ -56,7 +56,7 @@ const Banner = () => {
                 <div className="absolute  flex items-center   h-full  lg:left-0   lg:top-0 bg-gradient-to-r from-[#151515] to-[rgba(21, 21, 21, 0.00)]">
                     <div className='text-white space-y-7 px-3 lg:px-0 lg:pl-12 lg:w-1/2'>
                         <h1 className="lg:text-5xl font-bold">Find the most exciting startup jobs</h1>
-                        <p>Job Finder is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
+                        <p>Chakri Bakri is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
 
 
                         <div className='flex  gap-3'>
@@ -77,7 +77,7 @@ const Banner = () => {
                 <div className="absolute  flex items-center   h-full  lg:left-0   lg:top-0 bg-gradient-to-r from-[#151515] to-[rgba(21, 21, 21, 0.00)]">
                     <div className='text-white space-y-7 px-3 lg:px-0 lg:pl-12 lg:w-1/2'>
                         <h1 className="lg:text-5xl font-bold">Find the most exciting startup jobs</h1>
-                        <p>Job Finder is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
+                        <p>Chakri Bakri is a dynamic platform designed to bridge the gap between job seekers and employers. Our user-friendly interface and powerful search tools make it easy for candidates to discover their dream jobs while enabling employers to find the perfect talent for their teams.</p>
 
 
                         <div className='flex  gap-3'>
